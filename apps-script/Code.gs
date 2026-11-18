@@ -18,7 +18,7 @@
 
 // Nastavenie. SPREADSHEET_ID určuje tabuľku s dátami, skript tak funguje pripojený k nej aj samostatne.
 const SPREADSHEET_ID = '1iHvdCp_OD55wpYS-ikFBnPlQEDe_dD3-AidkOBLg398';   // tabuľka „Darčeky pre organizátorov – dáta“; prázdne = tabuľka, ku ktorej je skript pripojený
-const DEFAULT_TEAM_KEY = ''; // tímový kľúč, ak ho nevytváraš funkciou vytvorTimovyKluc
+const DEFAULT_TEAM_KEY = 'eccc87c7f9b4ce66300675a6'; // tímový kľúč, rovnaký ako v api/_http.js (repozitár je súkromný); vytvorTimovyKluc ho môže nahradiť
 
 // Zdroj tierov a portfólií.
 const RETIER_ID = '1s6FsTzRG3dlxi9Md27-wfHs_e7NeGUPEnQJftfzkgV4';
@@ -62,8 +62,12 @@ const STAV = {navrhnute: 'Navrhnuté', schvalene: 'Schválené', objednane: 'Obj
 
 /* ---------- webová aplikácia ---------- */
 
+// Otvorením adresy webovej aplikácie v prehliadači sa overí, že server beží a vidí retiering.
 function doGet() {
-  return out_({ok: true, data: {info: 'Darčeky pre organizátorov: server beží, verzia ' + VERSION + '.', verzia: VERSION}});
+  let ret;
+  try { ret = 'retiering: ' + readClients_(false).length + ' klientov, tím: ' + readTeam_().members.length + ' ľudí.'; }
+  catch (e) { ret = 'retiering sa nepodarilo načítať (' + (e && e.code ? e.code : String(e)) + ').'; }
+  return out_({ok: true, data: {info: 'Darčeky pre organizátorov: server beží, verzia ' + VERSION + ', ' + ret, verzia: VERSION}});
 }
 
 function doPost(e) {
