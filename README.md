@@ -28,34 +28,30 @@ Rovnako ako HO kalendár a prehľad techniky beží na Verceli za spoločným t�
 
 ## Nastavenie
 
-### 1. Google tabuľka a Apps Script
+### 1. Apps Script (5 minút)
 
-1. Tabuľka s dátami už existuje: [Darčeky pre organizátorov – dáta](https://docs.google.com/spreadsheets/d/1iHvdCp_OD55wpYS-ikFBnPlQEDe_dD3-AidkOBLg398/edit). Má hárky „Darčeky“, „Noví organizátori“ a „Tím“ (tím je predvyplnený aj s e-mailmi). Jej ID je v `SPREADSHEET_ID` na začiatku `Code.gs`. Pre novú tabuľku stačí ID zmeniť, chýbajúce hárky vzniknú samé.
-2. V tabuľke otvor **Rozšírenia › Apps Script**, obsah `Kód.gs` nahraď obsahom `apps-script/Code.gs` a ulož.
-3. Hore vyber funkciu `skontrolujNastavenie`, klikni na **Spustiť** a povoľ prístup. Skript overí hárky a to, že sa dostane k retieringu. V protokole uvidíš, koľko klientov načítal (malo by ich byť okolo 3 278).
-   Skript beží pod tvojím účtom, preto musíš mať prístup na čítanie do tabuľky „PLG CZ – retiering – source“.
-4. Tímový kľúč: vyber funkciu `vytvorTimovyKluc` a klikni na **Spustiť**. Kľúč nájdeš v protokole spustenia.
-5. Klikni na **Nasadiť › Nové nasadenie**, typ **Webová aplikácia**:
-   - Spustiť ako: **Ja**
-   - Kto má prístup: **Ktokoľvek**
-6. Skopíruj URL webovej aplikácie (končí na `/exec`).
+Tabuľka s dátami už existuje: [Darčeky pre organizátorov – dáta](https://docs.google.com/spreadsheets/d/1iHvdCp_OD55wpYS-ikFBnPlQEDe_dD3-AidkOBLg398/edit). Hárky aj tím (s e-mailmi z retieringu) sú pripravené a tímový kľúč je už v kóde.
 
-Prístup „Ktokoľvek“ je potrebný, aby sa na server dostal Vercel. Bez tímového kľúča server nič neprečíta ani nezapíše.
+1. V tabuľke otvor **Rozšírenia › Apps Script**, obsah `Kód.gs` nahraď obsahom `apps-script/Code.gs` a ulož.
+2. **Nasadiť › Nové nasadenie** › typ **Webová aplikácia**, Spustiť ako **Ja**, Kto má prístup **Ktokoľvek** › **Nasadiť** a povoľ prístup (pri hláške „Google tento app neoveril“: Rozšírené › Prejsť na…).
+3. Skopíruj **URL webovej aplikácie** (končí na `/exec`) a otvor ju v prehliadači. Má tam byť „server beží … retiering: približne 3 278 klientov, tím: 11 ľudí“.
 
-### 2. Vercel
+Skript beží pod tvojím účtom, preto musíš mať prístup na čítanie do tabuľky „PLG CZ – retiering – source“. Prístup „Ktokoľvek“ je potrebný, aby sa na server dostal Vercel; bez tímového kľúča server nič neprečíta ani nezapíše.
 
-1. Importuj repozitár (Application Preset: **Other**, bez build príkazu).
-2. V **Settings › Environment Variables** pridaj:
+### 2. Vercel (5 minút)
+
+1. **Add New… › Project** › pri `darceky-organizatori` klikni **Import** (ak ho nevidíš, cez „Adjust GitHub App Permissions“ mu povoľ prístup k repozitáru).
+2. Framework Preset: **Other**. V **Environment Variables** pridaj tri premenné:
 
    | Premenná | Hodnota |
    | --- | --- |
    | `APP_PASSWORD` | tímové heslo na prihlásenie |
    | `ADMIN_PASSWORD` | heslo správcu: môže upraviť a odstrániť všetky darčeky a načítať retiering nanovo |
    | `GAS_URL` | URL webovej aplikácie z Apps Scriptu (končí na `/exec`) |
-   | `GAS_KEY` | tímový kľúč z Apps Scriptu |
-   | `SESSION_SECRET` | voliteľné: ľubovoľný náhodný text na podpis prihlásenia |
 
-3. V **Deployments** pri poslednom nasadení klikni na **… › Redeploy**, aby sa premenné načítali.
+3. **Deploy**.
+
+Voliteľné premenné: `GAS_KEY` (iný tímový kľúč, ak ho zmeníš funkciou `vytvorTimovyKluc`) a `SESSION_SECRET` (ľubovoľný text na podpis prihlásenia). Po zmene premenných treba v **Deployments** dať **… › Redeploy**.
 
 ### 3. Tím
 
@@ -79,7 +75,7 @@ Retiering sa len číta, nikdy sa doň nezapisuje. Server si načítaný zoznam 
 
 - **Zmena hesla:** zmeň `APP_PASSWORD` alebo `ADMIN_PASSWORD` a daj Redeploy. Všetci sa musia prihlásiť znova.
 - **Odhlásenie všetkých bez zmeny hesla:** zmeň `SESSION_SECRET` a daj Redeploy.
-- **Zmena tímového kľúča:** spusti znova `vytvorTimovyKluc`, nový kľúč vlož do `GAS_KEY` a daj Redeploy.
+- **Zmena tímového kľúča:** spusti v Apps Scripte `vytvorTimovyKluc`, nový kľúč vlož vo Verceli do `GAS_KEY` a daj Redeploy.
 - **Iný zdroj retieringu:** zmeň `RETIER_ID`, `RETIER_SHEET` alebo názvy stĺpcov v `RETIER_COLS` na začiatku `Code.gs`.
 - **Úprava servera:** po zmene `Code.gs` otvor **Nasadiť › Spravovať nasadenia**, uprav existujúce nasadenie a zvoľ **Nová verzia**. URL zostane rovnaká.
 - **Úprava stránky:** stačí zmena vo vetve `main`, Vercel ju nasadí sám.

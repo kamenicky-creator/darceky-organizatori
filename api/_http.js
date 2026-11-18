@@ -24,9 +24,12 @@ export function readRaw(req) {
   });
 }
 
-// Pošle dopyt na Google Apps Script s tímovým kľúčom. Adresa aj kľúč sú len vo Verceli.
+// Tímový kľúč je rovnaký ako DEFAULT_TEAM_KEY v apps-script/Code.gs. Premenná GAS_KEY vo Verceli ho môže nahradiť.
+const DEFAULT_GAS_KEY = 'eccc87c7f9b4ce66300675a6';
+
+// Pošle dopyt na Google Apps Script s tímovým kľúčom. Adresa servera je len vo Verceli.
 export async function callGas(payload) {
-  const url = process.env.GAS_URL, key = process.env.GAS_KEY;
+  const url = process.env.GAS_URL, key = process.env.GAS_KEY || DEFAULT_GAS_KEY;
   if (!url || !key) return {ok: false, error: 'proxy_not_configured'};
   let r;
   try {
